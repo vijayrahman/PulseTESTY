@@ -262,3 +262,69 @@ contract PulseTESTY {
         int256 avg = o.accNeedle / int256(o.accMass);
         if (avg > type(int128).max) return type(int128).max;
         if (avg < type(int128).min) return type(int128).min;
+        return int128(avg);
+    }
+
+    function lanePolarity(uint8 lane) external view returns (SwayPolarity) {
+        int128 w = this.laneWeightedNeedle(lane);
+        if (w > 55_000) return SwayPolarity.Sunward;
+        if (w < -55_000) return SwayPolarity.Iceward;
+        return SwayPolarity.NeutralBias;
+    }
+
+    function laneFreshness(uint8 lane) external view returns (uint256 ageSec) {
+        _requireLane(lane);
+        uint32 last = _orbits[lane].lastStamp;
+        if (last == 0) return type(uint256).max;
+        return block.timestamp - uint256(last);
+    }
+
+    function ringCount(uint8 lane) external view returns (uint16) {
+        _requireLane(lane);
+        return _counts[lane];
+    }
+
+    function readRingTip(uint8 lane, uint16 backward) external view returns (PulseSlice memory) {
+        _requireLane(lane);
+        uint16 depth = _counts[lane];
+        if (backward >= depth) revert PTY_RingCursor(backward);
+        uint16 h = _heads[lane];
+        uint256 pos = (uint256(h) + uint256(PTY_RING_SPAN) - 1 - uint256(backward))
+            % uint256(PTY_RING_SPAN);
+        return _rings[lane][uint16(pos)];
+    }
+
+    function weaveLabel(uint8 lane) external pure returns (GaugeWeave) {
+        if (lane >= PTY_LANE_COUNT) revert PTY_LaneInvalid(lane);
+        return GaugeWeave(lane);
+    }
+
+    function crossLaneSpread() external view returns (int128 spread) {
+        int128 hi = type(int128).min;
+        int128 lo = type(int128).max;
+        for (uint8 lane = 0; lane < PTY_LANE_COUNT; ) {
+            int128 w = this.laneWeightedNeedle(lane);
+            if (w > hi) hi = w;
+            if (w < lo) lo = w;
+            unchecked {
+                ++lane;
+            }
+        }
+        return hi - lo;
+    }
+
+    function tapeBlendAverage(uint8[] calldata lanes) external view returns (int128 blended) {
+        uint256 n = lanes.length;
+        if (n == 0) revert PTY_BatchEmpty();
+        int256 acc;
+        for (uint256 i = 0; i < n; ) {
+            acc += int256(this.laneWeightedNeedle(lanes[i]));
+            unchecked {
+                ++i;
+            }
+        }
+        blended = int128(acc / int256(uint256(n)));
+    }
+
+    function decayedLaneNeedle(uint8 lane, uint48 asOf) external view returns (int128) {
+        _requireLane(lane);
