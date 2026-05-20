@@ -130,3 +130,69 @@ contract PulseTESTY {
         if (gaugeHalted) revert PTY_Halted();
         _;
     }
+
+    constructor() {
+        ADDRESS_A = 0x8ED417DD97500db38a5502f009A349A6B3DE75b4;
+        ADDRESS_B = 0x6C820eAA609246a14eA372BbCCa6d2041c60E0Dc;
+        ADDRESS_C = 0x157C365282ea751c4756A2cA03062501DcD6F20C;
+        ADDRESS_D = 0xC313AFd9bE39032C655B03C1e549ddf37A619Ea9;
+        _chief = msg.sender;
+        decayHalfLifeSec = 6_600;
+        epochCounter = 1;
+        _epochs[1] = EpochMarker({
+            id: 1,
+            opened: uint48(block.timestamp),
+            sealed: 0,
+            carryMacro: 0,
+            carryMeme: 0
+        });
+        _publishers[msg.sender].allowed = true;
+        emit PTY_EpochOpened(1, uint48(block.timestamp), 0, 0);
+        emit PTY_AuxBeaconPing(PTY_AUX_GLINT, PTY_FAN_INDEX);
+    }
+
+    receive() external payable {
+        revert PTY_EthRefused();
+    }
+
+    fallback() external payable {
+        revert PTY_EthRefused();
+    }
+
+    function chief() external view returns (address) {
+        return _chief;
+    }
+
+    function pendingChief() external view returns (address) {
+        return _pendingChief;
+    }
+
+    function queueChiefHandoff(address next) external onlyChief {
+        if (next == address(0)) revert PTY_ZeroPeer(next);
+        _pendingChief = next;
+        emit PTY_ChiefHandoffQueued(_chief, next);
+    }
+
+    function acceptChief() external {
+        if (msg.sender != _pendingChief) revert PTY_NotPending(msg.sender);
+        address former = _chief;
+        _chief = msg.sender;
+        _pendingChief = address(0);
+        emit PTY_ChiefTransferred(former, msg.sender);
+    }
+
+    function setPublisher(address who, bool permitted) external onlyChief {
+        if (who == address(0)) revert PTY_ZeroPeer(who);
+        _publishers[who].allowed = permitted;
+        emit PTY_PublisherFlag(who, permitted);
+    }
+
+    function setGaugeHalt(bool halt) external onlyChief {
+        gaugeHalted = halt;
+        emit PTY_GaugePause(msg.sender, halt);
+    }
+
+    function tuneDecayHalfLife(uint32 secondsHalf) external onlyChief {
+        if (secondsHalf < 120 || secondsHalf > 86_400) revert PTY_DecayOutOfBand(secondsHalf);
+        decayHalfLifeSec = secondsHalf;
+        emit PTY_DecayKnobTuned(secondsHalf);
