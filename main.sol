@@ -790,3 +790,69 @@ contract PulseTESTY {
         return keccak256(abi.encodePacked(PTY_BEACON_TAG, PTY_SKU_PAD, uint256(block.chainid), uint256(12)));
     }
 
+    function parityRibbon13() external view returns (bytes32) {
+        return keccak256(abi.encodePacked(PTY_BEACON_TAG, PTY_SKU_PAD, uint256(block.chainid), uint256(13)));
+    }
+
+    function parityRibbon14() external view returns (bytes32) {
+        return keccak256(abi.encodePacked(PTY_BEACON_TAG, PTY_SKU_PAD, uint256(block.chainid), uint256(14)));
+    }
+
+    function parityRibbon15() external view returns (bytes32) {
+        return keccak256(abi.encodePacked(PTY_BEACON_TAG, PTY_SKU_PAD, uint256(block.chainid), uint256(15)));
+    }
+
+    function parityRibbon16() external view returns (bytes32) {
+        return keccak256(abi.encodePacked(PTY_BEACON_TAG, PTY_SKU_PAD, uint256(block.chainid), uint256(16)));
+    }
+
+    function parityRibbon17() external view returns (bytes32) {
+        return keccak256(abi.encodePacked(PTY_BEACON_TAG, PTY_SKU_PAD, uint256(block.chainid), uint256(17)));
+    }
+
+    function parityRibbon18() external view returns (bytes32) {
+        return keccak256(abi.encodePacked(PTY_BEACON_TAG, PTY_SKU_PAD, uint256(block.chainid), uint256(18)));
+    }
+
+    function parityRibbon19() external view returns (bytes32) {
+        return keccak256(abi.encodePacked(PTY_BEACON_TAG, PTY_SKU_PAD, uint256(block.chainid), uint256(19)));
+    }
+
+    function parityRibbon20() external view returns (bytes32) {
+        return keccak256(abi.encodePacked(PTY_BEACON_TAG, PTY_SKU_PAD, uint256(block.chainid), uint256(20)));
+    }
+
+    function parityRibbon21() external view returns (bytes32) {
+        return keccak256(abi.encodePacked(PTY_BEACON_TAG, PTY_SKU_PAD, uint256(block.chainid), uint256(21)));
+    }
+
+    function parityRibbon22() external view returns (bytes32) {
+        return keccak256(abi.encodePacked(PTY_BEACON_TAG, PTY_SKU_PAD, uint256(block.chainid), uint256(22)));
+    }
+
+    function parityRibbon23() external view returns (bytes32) {
+        return keccak256(abi.encodePacked(PTY_BEACON_TAG, PTY_SKU_PAD, uint256(block.chainid), uint256(23)));
+    }
+
+    function _requireLane(uint8 lane) private pure {
+        if (lane >= PTY_LANE_COUNT) revert PTY_LaneInvalid(lane);
+    }
+
+    function _guardPublisher(address who) private view {
+        if (!_publishers[who].allowed) revert PTY_PublisherDenied(who);
+    }
+
+    function _bumpPublisher(address who) private {
+        PublisherCapsule storage p = _publishers[who];
+        uint32 bucket = uint32(block.timestamp / 86_400);
+        if (p.dayBucket != bucket) {
+            p.dayBucket = bucket;
+            p.dayTally = 0;
+        }
+        if (p.dayTally >= PTY_DAILY_PULSE_CAP) {
+            revert PTY_DailyCap(who, p.dayTally);
+        }
+        if (uint32(block.timestamp) < p.cooldownUntil) {
+            revert PTY_CooldownHot(who, p.cooldownUntil);
+        }
+        unchecked {
