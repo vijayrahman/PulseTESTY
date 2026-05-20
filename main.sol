@@ -526,3 +526,69 @@ contract PulseTESTY {
         return this.readRingTip(uint8(2), uint16(6));
     }
 
+    function tapePeek_L2_W7() external view returns (PulseSlice memory) {
+        return this.readRingTip(uint8(2), uint16(7));
+    }
+
+    function tapePeek_L2_W8() external view returns (PulseSlice memory) {
+        return this.readRingTip(uint8(2), uint16(8));
+    }
+
+    function tapePeek_L2_W9() external view returns (PulseSlice memory) {
+        return this.readRingTip(uint8(2), uint16(9));
+    }
+
+    function tapePeek_L3_W0() external view returns (PulseSlice memory) {
+        return this.readRingTip(uint8(3), uint16(0));
+    }
+
+    function tapePeek_L3_W1() external view returns (PulseSlice memory) {
+        return this.readRingTip(uint8(3), uint16(1));
+    }
+
+    function tapePeek_L3_W2() external view returns (PulseSlice memory) {
+        return this.readRingTip(uint8(3), uint16(2));
+    }
+
+    function tapePeek_L3_W3() external view returns (PulseSlice memory) {
+        return this.readRingTip(uint8(3), uint16(3));
+    }
+
+    function tapePeek_L3_W4() external view returns (PulseSlice memory) {
+        return this.readRingTip(uint8(3), uint16(4));
+    }
+
+    function tapePeek_L3_W5() external view returns (PulseSlice memory) {
+        return this.readRingTip(uint8(3), uint16(5));
+    }
+
+    function tapePeek_L3_W6() external view returns (PulseSlice memory) {
+        return this.readRingTip(uint8(3), uint16(6));
+    }
+
+    function tapePeek_L3_W7() external view returns (PulseSlice memory) {
+        return this.readRingTip(uint8(3), uint16(7));
+    }
+
+    function tapePeek_L3_W8() external view returns (PulseSlice memory) {
+        return this.readRingTip(uint8(3), uint16(8));
+    }
+
+    function tapePeek_L3_W9() external view returns (PulseSlice memory) {
+        return this.readRingTip(uint8(3), uint16(9));
+    }
+
+    function tapePeek_L4_W0() external view returns (PulseSlice memory) {
+        return this.readRingTip(uint8(4), uint16(0));
+    }
+
+    function tapePeek_L4_W1() external view returns (PulseSlice memory) {
+        return this.readRingTip(uint8(4), uint16(1));
+    }
+
+    function tapePeek_L4_W2() external view returns (PulseSlice memory) {
+        return this.readRingTip(uint8(4), uint16(2));
+    }
+
+    function tapePeek_L4_W3() external view returns (PulseSlice memory) {
+        return this.readRingTip(uint8(4), uint16(3));
