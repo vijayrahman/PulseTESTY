@@ -328,3 +328,69 @@ contract PulseTESTY {
 
     function decayedLaneNeedle(uint8 lane, uint48 asOf) external view returns (int128) {
         _requireLane(lane);
+        uint16 depth = _counts[lane];
+        if (depth == 0) return 0;
+        int256 wage = 0;
+        uint256 wm = 0;
+        uint16 h = _heads[lane];
+        uint32 half = decayHalfLifeSec == 0 ? 1 : decayHalfLifeSec;
+        for (uint16 i = 0; i < depth; ) {
+            uint256 pos = (uint256(h) + uint256(PTY_RING_SPAN) - 1 - uint256(i))
+                % uint256(PTY_RING_SPAN);
+            uint16 idx = uint16(pos);
+            PulseSlice memory s = _rings[lane][idx];
+            if (s.stamped == 0) break;
+            uint256 dt = asOf > s.stamped ? uint256(asOf - s.stamped) : 0;
+            uint256 numer = uint256(uint32(s.mass)) * 131_072;
+            uint256 shr = dt / uint256(half);
+            uint256 wv = shr > 22 ? 0 : numer >> shr;
+            wage += int256(int32(s.needle)) * int256(wv);
+            wm += wv;
+            unchecked {
+                ++i;
+            }
+        }
+        if (wm == 0) return 0;
+        return int128(int256(wage / int256(wm)));
+    }
+
+    function captionEcho(bytes32 caption) external pure returns (bytes32 mirrored) {
+        mirrored = keccak256(abi.encodePacked(PTY_DOMAIN_CORD, caption, PTY_HORIZON_MARK));
+    }
+
+    function sentinelFingerprint() external view returns (bytes32) {
+        return keccak256(abi.encodePacked(ADDRESS_A, ADDRESS_B, ADDRESS_C, ADDRESS_D, PTY_FABRIC_SIG));
+    }
+
+    function lane0Snapshot() external view returns (int128, uint32, SwayPolarity) {
+        uint8 lane = 0;
+        int128 w = this.laneWeightedNeedle(lane);
+        uint32 samples = _orbits[lane].samples;
+        return (w, samples, this.lanePolarity(lane));
+    }
+
+    function lane1Snapshot() external view returns (int128, uint32, SwayPolarity) {
+        uint8 lane = 1;
+        int128 w = this.laneWeightedNeedle(lane);
+        uint32 samples = _orbits[lane].samples;
+        return (w, samples, this.lanePolarity(lane));
+    }
+
+    function lane2Snapshot() external view returns (int128, uint32, SwayPolarity) {
+        uint8 lane = 2;
+        int128 w = this.laneWeightedNeedle(lane);
+        uint32 samples = _orbits[lane].samples;
+        return (w, samples, this.lanePolarity(lane));
+    }
+
+    function lane3Snapshot() external view returns (int128, uint32, SwayPolarity) {
+        uint8 lane = 3;
+        int128 w = this.laneWeightedNeedle(lane);
+        uint32 samples = _orbits[lane].samples;
+        return (w, samples, this.lanePolarity(lane));
+    }
+
+    function lane4Snapshot() external view returns (int128, uint32, SwayPolarity) {
+        uint8 lane = 4;
+        int128 w = this.laneWeightedNeedle(lane);
+        uint32 samples = _orbits[lane].samples;
