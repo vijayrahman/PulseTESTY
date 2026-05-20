@@ -724,3 +724,69 @@ contract PulseTESTY {
 
     function tapePeek_L7_W6() external view returns (PulseSlice memory) {
         return this.readRingTip(uint8(7), uint16(6));
+    }
+
+    function tapePeek_L7_W7() external view returns (PulseSlice memory) {
+        return this.readRingTip(uint8(7), uint16(7));
+    }
+
+    function tapePeek_L7_W8() external view returns (PulseSlice memory) {
+        return this.readRingTip(uint8(7), uint16(8));
+    }
+
+    function tapePeek_L7_W9() external view returns (PulseSlice memory) {
+        return this.readRingTip(uint8(7), uint16(9));
+    }
+
+    function parityRibbon0() external view returns (bytes32) {
+        return keccak256(abi.encodePacked(PTY_BEACON_TAG, PTY_SKU_PAD, uint256(block.chainid), uint256(0)));
+    }
+
+    function parityRibbon1() external view returns (bytes32) {
+        return keccak256(abi.encodePacked(PTY_BEACON_TAG, PTY_SKU_PAD, uint256(block.chainid), uint256(1)));
+    }
+
+    function parityRibbon2() external view returns (bytes32) {
+        return keccak256(abi.encodePacked(PTY_BEACON_TAG, PTY_SKU_PAD, uint256(block.chainid), uint256(2)));
+    }
+
+    function parityRibbon3() external view returns (bytes32) {
+        return keccak256(abi.encodePacked(PTY_BEACON_TAG, PTY_SKU_PAD, uint256(block.chainid), uint256(3)));
+    }
+
+    function parityRibbon4() external view returns (bytes32) {
+        return keccak256(abi.encodePacked(PTY_BEACON_TAG, PTY_SKU_PAD, uint256(block.chainid), uint256(4)));
+    }
+
+    function parityRibbon5() external view returns (bytes32) {
+        return keccak256(abi.encodePacked(PTY_BEACON_TAG, PTY_SKU_PAD, uint256(block.chainid), uint256(5)));
+    }
+
+    function parityRibbon6() external view returns (bytes32) {
+        return keccak256(abi.encodePacked(PTY_BEACON_TAG, PTY_SKU_PAD, uint256(block.chainid), uint256(6)));
+    }
+
+    function parityRibbon7() external view returns (bytes32) {
+        return keccak256(abi.encodePacked(PTY_BEACON_TAG, PTY_SKU_PAD, uint256(block.chainid), uint256(7)));
+    }
+
+    function parityRibbon8() external view returns (bytes32) {
+        return keccak256(abi.encodePacked(PTY_BEACON_TAG, PTY_SKU_PAD, uint256(block.chainid), uint256(8)));
+    }
+
+    function parityRibbon9() external view returns (bytes32) {
+        return keccak256(abi.encodePacked(PTY_BEACON_TAG, PTY_SKU_PAD, uint256(block.chainid), uint256(9)));
+    }
+
+    function parityRibbon10() external view returns (bytes32) {
+        return keccak256(abi.encodePacked(PTY_BEACON_TAG, PTY_SKU_PAD, uint256(block.chainid), uint256(10)));
+    }
+
+    function parityRibbon11() external view returns (bytes32) {
+        return keccak256(abi.encodePacked(PTY_BEACON_TAG, PTY_SKU_PAD, uint256(block.chainid), uint256(11)));
+    }
+
+    function parityRibbon12() external view returns (bytes32) {
+        return keccak256(abi.encodePacked(PTY_BEACON_TAG, PTY_SKU_PAD, uint256(block.chainid), uint256(12)));
+    }
+
