@@ -196,3 +196,69 @@ contract PulseTESTY {
         if (secondsHalf < 120 || secondsHalf > 86_400) revert PTY_DecayOutOfBand(secondsHalf);
         decayHalfLifeSec = secondsHalf;
         emit PTY_DecayKnobTuned(secondsHalf);
+    }
+
+    function sealAndOpenEpoch(int24 macroHint, int24 memeHint) external onlyChief {
+        uint64 id = epochCounter;
+        EpochMarker storage era = _epochs[id];
+        if (era.opened == 0) revert PTY_EpochGhost(id);
+        era.sealed = uint48(block.timestamp);
+        emit PTY_EpochSealed(id, era.sealed);
+        unchecked {
+            epochCounter += 1;
+        }
+        uint64 nid = epochCounter;
+        _epochs[nid] = EpochMarker({
+            id: nid,
+            opened: uint48(block.timestamp),
+            sealed: 0,
+            carryMacro: macroHint,
+            carryMeme: memeHint
+        });
+        emit PTY_EpochOpened(nid, uint48(block.timestamp), macroHint, memeHint);
+    }
+
+    function publisherProfile(address who) external view returns (PublisherCapsule memory) {
+        return _publishers[who];
+    }
+
+    function orbitOf(uint8 lane) external view returns (OrbitStats memory) {
+        _requireLane(lane);
+        return _orbits[lane];
+    }
+
+    function epochOf(uint64 id) external view returns (EpochMarker memory) {
+        return _epochs[id];
+    }
+
+    function recordPulse(uint8 lane, int32 needle, uint32 mass, bytes32 captionHash) public whenLive {
+        _writePulse(msg.sender, lane, needle, mass, captionHash);
+    }
+
+    function recordPulseBatch(
+        uint8[] calldata lanes,
+        int32[] calldata needles,
+        uint32[] calldata masses,
+        bytes32[] calldata captions
+    ) external whenLive {
+        uint256 n = lanes.length;
+        if (n == 0) revert PTY_BatchEmpty();
+        if (n > PTY_BATCH_CEIL) revert PTY_BatchHuge();
+        if (n != needles.length || n != masses.length || n != captions.length) {
+            revert PTY_BatchUneven();
+        }
+        for (uint256 i = 0; i < n; ) {
+            _writePulse(msg.sender, lanes[i], needles[i], masses[i], captions[i]);
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
+    function laneWeightedNeedle(uint8 lane) external view returns (int128) {
+        _requireLane(lane);
+        OrbitStats memory o = _orbits[lane];
+        if (o.accMass == 0) return 0;
+        int256 avg = o.accNeedle / int256(o.accMass);
+        if (avg > type(int128).max) return type(int128).max;
+        if (avg < type(int128).min) return type(int128).min;
