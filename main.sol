@@ -856,3 +856,57 @@ contract PulseTESTY {
             revert PTY_CooldownHot(who, p.cooldownUntil);
         }
         unchecked {
+            p.dayTally += 1;
+            p.cooldownUntil = uint32(block.timestamp) + PTY_COOLDOWN_SEC;
+            p.lifetimeWrites += 1;
+        }
+    }
+
+    function _pushPulse(uint8 lane, PulseSlice memory cut) private {
+        uint16 h = _heads[lane];
+        _rings[lane][h % PTY_RING_SPAN] = cut;
+        unchecked {
+            h += 1;
+        }
+        _heads[lane] = h;
+        uint16 c = _counts[lane];
+        if (c < PTY_RING_SPAN) {
+            unchecked {
+                c += 1;
+            }
+        }
+        _counts[lane] = c;
+    }
+
+    function _touchOrbit(uint8 lane, int32 needle, uint32 mass, uint48 ts) private {
+        OrbitStats storage o = _orbits[lane];
+        unchecked {
+            o.accNeedle += int256(needle) * int256(uint256(mass));
+            o.accMass += uint256(mass);
+            o.samples += 1;
+        }
+        o.lastStamp = uint32(ts);
+    }
+
+    function _writePulse(address scribe, uint8 lane, int32 needle, uint32 mass, bytes32 captionHash) private {
+        _requireLane(lane);
+        if (needle < -PTY_NEEDLE_CEIL || needle > PTY_NEEDLE_CEIL) revert PTY_NeedleBounds(needle);
+        if (mass < PTY_MASS_FLOOR || mass > PTY_MASS_CEIL) revert PTY_MassBounds(mass);
+        if (captionHash == bytes32(0)) revert PTY_CaptionZero();
+        _guardPublisher(scribe);
+        _bumpPublisher(scribe);
+        PulseSlice memory cut = PulseSlice({
+            needle: needle,
+            mass: mass,
+            stamped: uint48(block.timestamp),
+            scribe: scribe,
+            captionHash: captionHash
+        });
+        _pushPulse(lane, cut);
+        _touchOrbit(lane, needle, mass, uint48(block.timestamp));
+        lastGlobalPulse = uint48(block.timestamp);
+        emit PTY_PulseWritten(lane, scribe, needle, mass, uint48(block.timestamp));
+        OrbitStats memory orb = _orbits[lane];
+        emit PTY_OrbitSynced(lane, orb.accNeedle, orb.accMass, orb.samples);
+    }
+}
